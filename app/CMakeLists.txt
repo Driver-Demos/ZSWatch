@@ -1,3 +1,6 @@
+# Copyright (c) 2025 ZSWatch Project
+# SPDX-License-Identifier: Apache-2.0
+
 cmake_minimum_required(VERSION 3.20.0)
 
 # Apply patches before build
@@ -30,27 +33,7 @@ endfunction()
 apply_patches("patches/zephyr" $ENV{ZEPHYR_BASE})
 apply_patches("patches/ext_drivers" ${CMAKE_SOURCE_DIR}/src/ext_drivers)
 
-# Get the target hardware
-string(REGEX MATCH "zswatch@([0-9]+)/nrf5340.*" ZSWATCH_BOARD "${BOARD}")
-if(ZSWATCH_BOARD)
-    string(CONCAT VERSION_STRING "\"" ${CMAKE_MATCH_1} "\"")
-    set(CONFIG_ZSWATCH_PCB_REV ${CMAKE_MATCH_1} CACHE INTERNAL "")
-    set(CONFIG_BT_DIS_HW_REV_STR ${VERSION_STRING} CACHE INTERNAL "")
-
-    message("PCB revision: " ${CONFIG_ZSWATCH_PCB_REV})
-endif()
-
 set(BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-
-macro(app_set_runner_args)
-    if (CONFIG_BOARD_ZSWATCH_NRF5340_CPUAPP AND CONFIG_BOARD_REVISION STREQUAL "5") 
-        board_runner_args(nrfjprog "--qspiini=${CMAKE_CURRENT_SOURCE_DIR}/qspi_mx25u51245.ini")
-    elseif(CONFIG_BOARD_ZSWATCH_NRF5340_CPUAPP AND CONFIG_BOARD_REVISION STREQUAL "4")
-        board_runner_args(nrfjprog "--qspiini=${CMAKE_CURRENT_SOURCE_DIR}/qspi_at25sl128a.ini")
-    else ()
-        message("Uploading firmware to external flash may fail. Default ini will be used.")
-    endif()
-endmacro()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ZSWatchFW)
@@ -75,6 +58,22 @@ include_directories(src/)
 include_directories(src/ui)
 include_directories(src/applications)
 include_directories(src/ui/watchfaces)
+
+if(CONFIG_AUDIO_DMIC)
+target_sources(app PRIVATE
+    src/ext_drivers/kissfft/kiss_fft.c
+    src/ext_drivers/kissfft/kiss_fftr.c
+)
+
+target_include_directories(app PRIVATE src/ext_drivers/kissfft)
+
+target_compile_definitions(app PRIVATE
+    kiss_fft_scalar=float
+    KISS_FFT_MALLOC=k_malloc
+    KISS_FFT_FREE=k_free
+)
+
+endif()
 
 if (CONFIG_DT_HAS_NORDIC_NPM1300_ENABLED)
     add_subdirectory(src/fuel_gauge)

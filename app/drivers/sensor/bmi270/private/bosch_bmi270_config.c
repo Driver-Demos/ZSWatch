@@ -1,9 +1,18 @@
-/* bosch_bmi270_config.c- Driver for Bosch BMI270 IMU. */
-
 /*
- * Copyright (c) 2023, Daniel Kampert
+ * This file is part of ZSWatch project <https://github.com/zswatch/>.
+ * Copyright (c) 2025 ZSWatch Project.
  *
- * SPDX-License-Identifier: Apache-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <zephyr/logging/log.h>
@@ -250,7 +259,11 @@ int bmi2_configure_enable_all(const struct device *p_dev, struct bmi270_data *p_
             if (bmi270_enabled_features[i].isr_disable) {
                 all_features[num_features].hw_int_pin = BMI2_INT_NONE;
             } else {
+#ifdef CONFIG_BMI270_PLUS_USE_INT1
+                all_features[num_features].hw_int_pin = BMI2_INT1;
+#else
                 all_features[num_features].hw_int_pin = BMI2_INT2;
+#endif
             }
 
             num_features++;
@@ -607,12 +620,16 @@ int bmi2_enable_feature(const struct device *p_dev, uint8_t feature, bool int_en
     }
 
     if (int_en) {
+#ifdef CONFIG_BMI270_PLUS_USE_INT1
+        cfg.hw_int_pin = BMI2_INT1;
+#else
         cfg.hw_int_pin = BMI2_INT2;
+#endif
     } else {
         cfg.hw_int_pin = BMI2_INT_NONE;
     }
     cfg.type = feature;
-    
+
     rslt = bmi270_map_feat_int(&cfg, 1, &data->bmi2);
     // If interrupt is not enabled and interrupt mapping failed due to invalid sensor, it's fine.
     // As we never tried to enable an interrupt for this specific feature.

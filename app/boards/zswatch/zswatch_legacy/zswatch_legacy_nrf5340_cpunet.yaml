@@ -1,0 +1,17 @@
+# Copyright (c) 2025 ZSWatch Project
+# SPDX-License-Identifier: Apache-2.0
+
+identifier: zswatch_legacy/nrf5340/cpunet
+name: ZSWATCH-LEGACY-NRF5340-network-MCU
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - xtools
+  - zephyr
+ram: 64
+flash: 256
+supported:
+  - watchdog
+  - gpio
+vendor: zswatch

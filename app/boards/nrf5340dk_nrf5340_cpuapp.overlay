@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2023 Jakob Krantz
- *
+ * Copyright (c) 2025 ZSWatch Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
- &pinctrl {
+&pinctrl {
     // Set to I2C pins that the sensors are connected to
     i2c3_default: i2c3_default {
         group1 {
@@ -57,7 +56,7 @@
 
 / {
     /delete-node/ buttons;
-    
+
     chosen {
         zephyr,display = &gc9a01;
         zephyr,keyboard-scan = &cst816s;
@@ -243,41 +242,12 @@
 
 /delete-node/ &storage_partition;
 
-&flash0 {
-    partitions {
-        compatible = "fixed-partitions";
-        #address-cells = <1>;
-        #size-cells = <1>;
-
-        boot_partition: partition@0 {
-            label = "mcuboot";
-            reg = <0x00000000 0x00010000>;
-        };
-        slot0_partition: partition@10000 {
-            label = "image-0";
-        };
-        slot0_ns_partition: partition@50000 {
-            label = "image-0-nonsecure";
-        };
-        slot1_partition: partition@80000 {
-            label = "image-1";
-        };
-        slot1_ns_partition: partition@c0000 {
-            label = "image-1-nonsecure";
-        };
-        scratch_partition: partition@f0000 {
-            label = "image-scratch";
-            reg = <0x000f0000 0xa000>;
-        };
-    };
-};
-
 &mx25r64 {
     partitions {
         compatible = "fixed-partitions";
         #address-cells = <1>;
         #size-cells = <1>;
-        
+
         // For Nordic Partition manager to work it has to have this name.
         littlefs_storage: partition@320000 {
             label = "littlefs_storage";

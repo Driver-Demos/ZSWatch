@@ -1,3 +1,20 @@
+/*
+ * This file is part of ZSWatch project <https://github.com/zswatch/>.
+ * Copyright (c) 2025 ZSWatch Project.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <info/info_ui.h>
 #include <lvgl.h>
 #include <utils/zsw_ui_utils.h>
@@ -300,7 +317,7 @@ static void create_coredump_page_ui(lv_obj_t *parent, zsw_coredump_sumary_t *cor
         lv_dropdown_add_option(ui_Dropdown1, coredumps[i].datetime, i);
     }
     if (num_coredumps > 0) {
-        lv_dropdown_set_selected(ui_Dropdown1, 0);
+        lv_dropdown_set_selected(ui_Dropdown1, 0, LV_ANIM_OFF);
         lv_label_set_text_fmt(ui_coredump_info_field, "%s\n%s Line #%d", coredumps[0].datetime, coredumps[0].file,
                               coredumps[0].line);
     }

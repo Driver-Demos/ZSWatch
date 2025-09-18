@@ -1,6 +1,6 @@
 /*
- * This file is part of ZSWatch project <https://github.com/jakkra/ZSWatch/>.
- * Copyright (c) 2023 Jakob Krantz.
+ * This file is part of ZSWatch project <https://github.com/zswatch/>.
+ * Copyright (c) 2025 ZSWatch Project.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,6 @@
 #include "sensors/zsw_light_sensor.h"
 #include "sensors/zsw_environment_sensor.h"
 
-#include "drivers/zsw_buzzer.h"
 #include "drivers/zsw_vibration_motor.h"
 #include "drivers/zsw_display_control.h"
 
@@ -72,6 +71,7 @@
 #include <filesystem/zsw_filesystem.h>
 
 #include "fuel_gauge/zsw_pmic.h"
+#include "managers/zsw_microphone_manager.h"
 
 LOG_MODULE_REGISTER(main, CONFIG_ZSW_APP_LOG_LEVEL);
 
@@ -109,6 +109,10 @@ static void run_init_work(struct k_work *item)
 
     zsw_ui_controller_init();
 
+#ifdef CONFIG_AUDIO_DMIC
+    zsw_microphone_manager_init();
+#endif
+
     print_retention_ram();
 #ifdef CONFIG_SPI_FLASH_LOADER
     if (NUM_RAW_FS_FILES != zsw_filesytem_get_num_rawfs_files()) {
@@ -137,16 +141,6 @@ int main(void)
     // this RAM forever, instead re-use the system workqueue for init
     // it has the required amount of stack.
     k_work_submit(&init_work);
-
-    // Workaround due to https://github.com/zephyrproject-rtos/zephyr/issues/71410
-    // we need to run lv_task_handler from main thread and disable CONFIG_LV_Z_FLUSH_THREAD
-#ifdef CONFIG_ARCH_POSIX
-    int64_t next_update_in_ms;
-    while (true) {
-        next_update_in_ms = lv_task_handler();
-        k_msleep(next_update_in_ms);
-    }
-#endif
 
     return 0;
 }
